@@ -1,0 +1,9 @@
+====== Analyza kodu (max 6 b.) ===============
+5.06: uhlednost kodu
+# tnine.c:5: obtizne citelny kod, prilis dlouhe radky (6 radku celkem)
+# tnine.c:42: identifikator je prilis kratky: 'ch'
+# tnine.c:81: identifikator je prilis kratky: 'f'
+# tnine.c:81: identifikator je prilis kratky: 'p'
+# tnine.c:94: magicka konstanta '10'
+# tnine.c:94: magicka konstanta '6'
+# tnine.c:121: identifikator je prilis kratky: 'k

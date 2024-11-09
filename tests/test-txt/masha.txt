@@ -1,0 +1,80 @@
+9.32: celkem bodu
+
+====== Prehled hodnoceni ==========
+-0.0: globalni promenne
+5.32: uhlednost kodu
+0.36:ok: vyhledani celeho tel. cisla
+0.36:ok: vyhledani casti tel. cisla
+0.36:ok: vyhledani tel. cisla
+0.36:ok: pripad nenalezeno tel. cislo
+0.36:ok: vyhledani celeho jmena
+0.36:ok: vyhledani casti jmena
+0.08:ok: transliterace 2
+0.08:ok: transliterace 3
+0.08:ok: transliterace 4
+0.08:ok: transliterace 5
+0.08:ok: transliterace 6
+0.08:ok: transliterace 7
+0.08:ok: transliterace 8
+0.08:ok: transliterace 9
+0.08:ok: transliterace 0
+0.2:ok: vyhledani dle prazdneho zadani
+0.2:ok: priklad ze zadani 2
+0.2:ok: priklad ze zadani 3
+0.2:ok: priklad ze zadani 4
+0.2:ok: priklad ze zadani 5
+0:spatne: (volitelne) vyhledani preruseneho tel. cisla
+0:spatne: (volitelne) vyhledani preruseneho jmena
+0.12:ok: reakce na neocekavane argumenty
+
+====== Log z prekladu =============
+# cc -std=c11 -Wall -DNDEBUG -g -o tnine tnine.c
+
+====== Analyza kodu (max 6 b.) ===============
+-0.0: globalni promenne
+# : phone_digits
+5.32: uhlednost kodu
+# tnine.c:6: magicka konstanta '29'
+# tnine.c:45: magicka konstanta '101'
+# tnine.c:57: funkce 'main' je prilis dlouha (48 radku)
+	
+# tnine.c:113: obtizne citelny kod, prilis dlouhy radek (108 znaku)
+# tnine.c:120: obtizne citelny kod, prilis dlouhy radek (108 znaku)
+
+====== Testy funkcionality (max 4 b.) ===
+0.36:ok: vyhledani celeho tel. cisla
+0.36:ok: vyhledani casti tel. cisla
+0.36:ok: vyhledani tel. cisla
+0.36:ok: pripad nenalezeno tel. cislo
+0.36:ok: vyhledani celeho jmena
+0.36:ok: vyhledani casti jmena
+0.08:ok: transliterace 2
+0.08:ok: transliterace 3
+0.08:ok: transliterace 4
+0.08:ok: transliterace 5
+0.08:ok: transliterace 6
+0.08:ok: transliterace 7
+0.08:ok: transliterace 8
+0.08:ok: transliterace 9
+0.08:ok: transliterace 0
+0.2:ok: vyhledani dle prazdneho zadani
+0.2:ok: priklad ze zadani 2
+0.2:ok: priklad ze zadani 3
+0.2:ok: priklad ze zadani 4
+0.2:ok: priklad ze zadani 5
+0:spatne: (volitelne) vyhledani preruseneho tel. cisla
+# Neodpovida vzorovemu vystupu
+# --- testdata/test_p1 2024-11-04 09:34:53.188281896 +0100
+# +++ test_p1 2024-11-08 18:34:12.391664168 +0100
+# @@ -1,2 +1 @@
+# cat b1.txt | ./tnine -s 2468 -->
+# - xxxxxx, 1234567890
+0:spatne: (volitelne) vyhledani preruseneho jmena
+# Neodpovida vzorovemu vystupu
+# --- testdata/test_p2 2024-11-04 09:34:56.841284816 +0100
+# +++ test_p2 2024-11-08 18:34:12.399664163 +0100
+# @@ -1,2 +1 @@
+# cat b3.txt | ./tnine -s 456 -->
+# - abcdefghijklmnopqrstuvwxyz, 111
+0.12:ok: reakce na neocekavane argumenty
+# error

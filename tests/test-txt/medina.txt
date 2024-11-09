@@ -1,0 +1,67 @@
+====== Analyza kodu (max 6 b.) ===============
+1.5: uhlednost kodu
+# tnine.c: nedostatek komentaru: 19%
+# tnine.c: 13 velkych segmentu kodu bez komentaru (prumer: 28 radku)
+# tnine.c:7: magicka konstanta '101' (celkovy pocet vyskytu 8)
+# tnine.c:11: magicka konstanta '102' (celkovy pocet vyskytu 11)
+# tnine.c:29: funkce 'main' je prilis dlouha (56 radku)
+# tnine.c:35: magicka konstanta '3'
+# tnine.c:39: magicka konstanta '21'
+# tnine.c:42: magicka konstanta '3'
+# tnine.c:48: magicka konstanta '27'
+# tnine.c:53: magicka konstanta '28'
+# tnine.c:100: magicka konstanta '100'
+# tnine.c:103: magicka konstanta '22'
+# tnine.c:108: magicka konstanta '48'
+# tnine.c:109: magicka konstanta '57'
+# tnine.c:113: magicka konstanta '24'
+# tnine.c:123: funkce 'find_contacts' je prilis dlouha (253 radku)
+# tnine.c:123: funkce 'find_contacts' je extremne slozita! (67 cest)
+# tnine.c:132: magicka konstanta '103'
+# tnine.c:133: magicka konstanta '103'
+# tnine.c:159: magicka konstanta '23'
+# tnine.c:166: magicka konstanta '10' (celkovy pocet vyskytu 10)
+# tnine.c:167: magicka konstanta '13' (celkovy pocet vyskytu 8)
+# tnine.c:182: magicka konstanta '33'
+# tnine.c:195: magicka konstanta '32' (celkovy pocet vyskytu 7)
+# tnine.c:214: magicka konstanta '33'
+# tnine.c:231: velky segment kodu bez komentaru (88 radku)
+# tnine.c:241: magicka konstanta '30'
+# tnine.c:252: magicka konstanta '30'
+# tnine.c:265: magicka konstanta '31'
+# tnine.c:276: magicka konstanta '31'
+# tnine.c:291: magicka konstanta '34'
+# tnine.c:304: magicka konstanta '26'
+# tnine.c:317: magicka konstanta '35'
+# tnine.c:325: magicka konstanta '48'
+# tnine.c:326: magicka konstanta '57'
+# tnine.c:327: magicka konstanta '43' (celkovy pocet vyskytu 4)
+# tnine.c:335: magicka konstanta '24'
+# tnine.c:345: magicka konstanta '25'
+# tnine.c:397: magicka konstanta '29'
+# tnine.c:413: funkce 'tnine_solver' je prilis dlouha (154 radku)
+# tnine.c:413: funkce 'tnine_solver' je extremne slozita! (41 cest)
+# tnine.c:451: magicka konstanta '65'
+# tnine.c:457: magicka konstanta '91'
+# tnine.c:457: magicka konstanta '97'
+# tnine.c:463: magicka konstanta '122'
+# tnine.c:470: magicka konstanta '97'
+# tnine.c:470: magicka konstanta '122'
+# tnine.c:477: magicka konstanta '65'
+# tnine.c:477: magicka konstanta '67'
+# tnine.c:483: magicka konstanta '68'
+# tnine.c:483: magicka konstanta '70'
+# tnine.c:489: magicka konstanta '71'
+# tnine.c:489: magicka konstanta '73'
+# tnine.c:495: magicka konstanta '74'
+# tnine.c:495: magicka konstanta '76'
+# tnine.c:501: magicka konstanta '77'
+# tnine.c:501: magicka konstanta '79'
+# tnine.c:507: magicka konstanta '80'
+# tnine.c:507: magicka konstanta '83'
+# tnine.c:513: magicka konstanta '84'
+# tnine.c:513: magicka konstanta '86'
+# tnine.c:519: magicka konstanta '87'
+# tnine.c:519: magicka konstanta '90'
+# tnine.c:623: funkce 'is_any_matching' ma prilis mnoho parametru (6)
+# tnine.c:656: funkce 'is_next_matching' ma prilis mnoho parametru (6)
