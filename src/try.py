@@ -1,12 +1,18 @@
-data = ['global', 'variable', '16', '../tests/test-files/masha.c', 'int', 'global;', 'need', 'variable', '18', '../tests/test-files/masha.c', 'char', '*need;', 'phone_digits', 'variable', '5', '../tests/test-files/masha.c', 'char', 'phone_digits[29]', '=', '{', 'phone_digits', 'variable', '20', '../tests/test-files/masha.c', 'char', 'phone_digits[3]', '=', '{']
+from pycparser import parse_file, c_ast
 
+class VariableVisitor(c_ast.NodeVisitor):
+    def __init__(self):
+        self.variables = []
 
-# Initialize an empty dictionary to store the results
-result_dict = {}
+    def visit_Decl(self, node):
+        if isinstance(node.type, c_ast.TypeDecl):
+            self.variables.append((node.name, node.coord))
+        self.generic_visit(node)
 
+# Parse the C file and print all variables with their locations
+ast = parse_file('../tests/test-files/veronika.c', use_cpp=True)  # use_cpp=True handles preprocessing
+visitor = VariableVisitor()
+visitor.visit(ast)
 
-for i in range(0, len(data)-2, 6):  # Start at 0, end before 15, increment by 6
-    print(data[i], data[i + 2])
-
-
-print(result_dict)
+for var_name, location in visitor.variables:
+    print(f"Variable: {var_name} at {location}")
