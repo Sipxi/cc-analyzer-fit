@@ -1,63 +1,87 @@
+import subprocess
 import re
 
-def find_short_vars_with_lines(filename):
-    with open(filename, 'r') as file:
-        lines = file.readlines()
+def get_function_declarations(c_file_path):
+    """
+    Get function declarations from a C file using ctags.
+    Returns a list of tuples: (function_name, starting_line).
+    """
+    command = f"ctags -x --c-kinds=f {c_file_path}"
 
-    # Regular expressions to match:
-    #   - Variables that are one or two characters long
-    #   - Ignore characters in single/double quotes or in comments
-    var_pattern = r'\b[a-zA-Z]{1,2}\b'  # Matches words with 1 or 2 characters
-    quote_pattern = r'(["\']).*?\1'  # Matches anything inside '' or ""
-    comment_pattern = r'//.*|/\*[\s\S]*?\*/'  # Matches both // and /* ... */ (multiline)
-   # doc_comment_pattern = r'(@brief|@param|@return|@example|@see)'  # Detects documentation tags
+    # Run the command to get function declarations
+    result = subprocess.run(command, shell=True, capture_output=True, text=True, check=True)
+    lines = result.stdout.splitlines()
+    
+    function_declarations = []
+    for line in lines:
+        tokens = line.split()  # Split by whitespace
+        if len(tokens) >= 3:  # Ensure there are at least 3 tokens
+            func_name = tokens[0]  # First token (function name)
+            line_number = int(tokens[2])  # Third token (line number)
+            function_declarations.append((func_name, line_number))
+    return function_declarations
 
-    # List of variables to exclude
-    exclude_vars = {'i', 'j', 'c', 'if', 'n'}
 
-    results = []
+
+def get_function_length(start_line, c_file_path):
+    func_length = 1
+    brackets_to_close = 0
     inside_block_comment = False
+    initial_bracket = False
+    with open(c_file_path, 'r') as f:
+        lines = f.readlines()
+    
+    for i in range(start_line, len(lines)):
+        line = lines[i].strip()  # Remove leading/trailing whitespaces
 
-    for line_num, line in enumerate(lines, start=1):
-        # Skip lines that start with preprocessor directives (e.g., #include, #define)
-        if line.strip().startswith("#"):
+        # Skip empty lines
+        if not line:
             continue
-
-        # Check for block comment start and end
-        if '/*' in line:
+        
+        # Skip single-line comments
+        if line.startswith("//"):
+            continue
+        
+        # Handle block comments
+        if "/*" in line:
             inside_block_comment = True
-        if '*/' in line:
-            inside_block_comment = False
-            continue  # Skip line containing end of block comment
-
-        # Skip the line if we are inside a block comment
         if inside_block_comment:
+            if "*/" in line:
+                inside_block_comment = False
             continue
+        
+        # Now process the non-comment lines
+        for j in range(len(line)):
+            if line[j] == '{':
+                if initial_bracket == False:
+                    initial_bracket = True
+                brackets_to_close += 1
+            elif line[j] == '}':
+                brackets_to_close -= 1
 
-        # Skip lines with documentation comments (e.g., @brief, @param)
-      #  if re.search(doc_comment_pattern, line.strip()):
-      #      continue
+        if brackets_to_close == 0 and initial_bracket == True:
+            initial_bracket = False
+            break
 
-        # Remove inline comments and quoted strings from the line
-        line_no_quotes = re.sub(quote_pattern, '', line)
-        line_no_comments = re.sub(comment_pattern, '', line_no_quotes)
+        # Only increment the function length for non-empty, non-comment lines
+        func_length += 1
+    return func_length
 
-        # Find variables with 1 or 2 characters in the cleaned line
-        matches = re.findall(var_pattern, line_no_comments)
 
-        # Filter out variables that are in the exclude list
-        matches = [var for var in matches if var not in exclude_vars]
 
-        if matches:
-            for var in matches:
-                results.append((var, line_num, line.strip()))
+def check_function_lengths(c_file_path):
+    """
+    Calculate the length (in lines) of each function in the given C file, excluding whitespaces and comments.
+    """
+    # Get function declarations from the ctags output
+    function_declarations = get_function_declarations(c_file_path)
+    print(function_declarations)
+    print(get_function_length(function_declarations[0][1]-1, c_file_path))
 
-    if results:
-        print("Variables that are 1 or 2 characters long (excluding '1', '2', 'i', 'j', and 'c') and their locations:")
-        for var, line_num, line_content in results:
-            print(f"Variable '{var}' found on line {line_num}: {line_content}")
-    else:
-        print("No variables found that match the criteria.")
 
-# Replace 'your_file.c' with the path to your C file
-find_short_vars_with_lines('../tests/test-files/yelesey.c')
+
+if __name__ == "__main__":
+    # Specify the path to your C file
+    c_file_path = "../tests/test-files/veronika.c"  # Replace with the actual file path
+    
+    check_function_lengths(c_file_path)
