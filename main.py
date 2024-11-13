@@ -21,7 +21,54 @@ class CCodeAnalyzer:
         self.too_long_functions = self.__get_functions_length()
         self.func_args_count = self.__get_count_function_arguments()
         self.comment_occurance = self.__get_comments_occurance()
+        self.pointer_operations = self.__get_pointer_operations()
+        
+    def __get_pointer_operations(self):
+        """
+        Scans a C source code file for pointer manipulation operations involving 
+        dereferencing with increment (++) or decrement (--) operators, such as:
+        `*i++`, `**i++`, `***i++`, `****i--`, etc.
 
+        Args:
+            file_path (str): The path to the C source code file that will be scanned.
+        
+        Returns:
+            list of tuples: A list of tuples where each tuple contains:
+                - A matched pointer operation (str)
+                - The line number (int) where the operation was found.
+            
+            If no pointer operations are found, returns an empty list.
+        """
+        
+        # Define the refined pattern for pointer operations involving dereferencing
+        pointer_patterns = [
+            r'(\*+)\s*\w+\+\+',  # Matches *i++, **i++, ***i++, etc.
+            r'(\*+)\s*\w+\-\-',   # Matches *i--, **i--, ***i--, etc.
+        ]
+
+        # Combine the patterns into one regex
+        pattern = '|'.join(pointer_patterns)
+        
+        found_operations = []
+        
+        with open(self.c_file_path, 'r') as f:
+            # Read the file line by line
+            lines = f.readlines()
+        
+        # Iterate over each line and check for matches
+        for line_number, line in enumerate(lines, start=1):
+            matches = re.findall(pattern, line)
+            
+            # If matches are found, add them to the list
+            for match in matches:
+                # Since match is a tuple, we need to reconstruct the entire operation
+                dereference_part = match[0]  # This is the *+ part (e.g., *, **, ***)
+                # We capture the entire matched string, which includes the dereference and operator
+                full_match = dereference_part + line[line.find(dereference_part)+len(dereference_part):].strip()
+                found_operations.append((full_match, line_number))
+        return found_operations
+        
+    
     def __get_declarations(self, mode: str = "v") -> list:
         """
         Retrieves declarations of variables or functions from a C file using ctags.
@@ -112,7 +159,6 @@ class CCodeAnalyzer:
 
             # Increment the function length for non-empty, non-comment lines
             func_length += 1
-        print(func_length)
         return func_length
     
     def __get_functions_length(self) -> tuple[list, list]:
@@ -515,6 +561,28 @@ class CCodeAnalyzer:
             self.print_error("WARNING", inspect.currentframe().f_code.co_name,
                             global_var, line)
     
+    def check_pointer_operations(self) -> None:
+        """
+        Checks for pointer operations in the code and prints a warning for each pointer operation found.
+
+        Returns:
+            None
+        """
+        if not self.pointer_operations:
+            return
+        for pointer_op, line in self.pointer_operations:
+            self.print_error("WARNING", inspect.currentframe().f_code.co_name,
+                            pointer_op, line)
+    
+    
+    def check_bad_functions_declarations(self) -> None:
+        if not self.all_func_declaration:
+            return
+        additional_info = "Function starts with upper case..."
+        for func, line in self.all_func_declaration:
+            if func[0].isupper():
+                self.print_error("WARNING", inspect.currentframe().f_code.co_name, func, line, additional_info)
+    
     def print_error(self, mode, func_that_checked, var_print, line_print, additional_info = "") -> None:
         """Fancy printing for error
 
@@ -536,6 +604,8 @@ class CCodeAnalyzer:
             None
         """
         self.check_for_global_vars()
+        self.check_pointer_operations()
+        self.check_bad_functions_declarations()
         self.check_magic_constants()
         self.check_long_lines()
         self.check_short_vars()
