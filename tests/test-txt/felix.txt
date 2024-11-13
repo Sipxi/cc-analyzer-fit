@@ -1,0 +1,6 @@
+# tnine.c: 3 velkych segmentu kodu bez komentaru (prumer: 34 radku)
+# tnine.c:180: magicka konstanta '3' (celkovy pocet vyskytu 3)
+# tnine.c:217: velky segment kodu bez komentaru (53 radku)
+# tnine.c:217: funkce 'contactPrint' je prilis dlouha (53 radku)
+# tnine.c:228: magicka konstanta '100'
+# tnine.c:326: obtizne citelny kod, prilis dlouhy radek (113 znaku)
