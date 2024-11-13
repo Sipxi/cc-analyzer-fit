@@ -1,6 +1,6 @@
-cc-analyzer-fit
+#cc-analyzer-fit
 
-For Windows:
+##For Windows:
     Install Chocolatey (if not already installed):
 
     Using PowerShell:
@@ -16,7 +16,7 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 choco install universal-ctags
 
 
-For Linux:
+##For Linux:
 
 sudo apt install universal-ctags
 
