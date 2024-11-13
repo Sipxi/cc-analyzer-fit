@@ -1,7 +1,0 @@
-# tnine.c:11: identifikator je prilis kratky: 'a'
-# tnine.c:16: obtizne citelny kod, prilis dlouhe radky (4 radku celkem)
-# tnine.c:64: funkce 'main' je prilis dlouha (57 radku)
-# tnine.c:65: magicka konstanta '100'
-# tnine.c:66: magicka konstanta '102'
-# tnine.c:73: pouziti explicitniho pretypovani (int)
-# tnine.c:81: pouziti explicitniho pretypovani (int)
