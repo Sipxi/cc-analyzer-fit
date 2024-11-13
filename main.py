@@ -6,7 +6,7 @@ import sys
 
 class CCodeAnalyzer:
     MAX_MAIN_LENGTH = 39
-    MAX_FUNCTION_LENGTH = 100
+    MAX_FUNCTION_LENGTH = 50
     LONG_LINE_THRESHOLD = 100
     COMMENTS_OCCURANCE_THRESHOLD = 40
     
@@ -112,7 +112,7 @@ class CCodeAnalyzer:
 
             # Increment the function length for non-empty, non-comment lines
             func_length += 1
-
+        print(func_length)
         return func_length
     
     def __get_functions_length(self) -> tuple[list, list]:
@@ -135,6 +135,7 @@ class CCodeAnalyzer:
                     long_funcs.append((func, start_line, func_length))
             elif func_length >= self.MAX_FUNCTION_LENGTH:
                 long_funcs.append((func, start_line, func_length))
+            
         return long_funcs
     
     def __get_magic_constants(self) -> list:
