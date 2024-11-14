@@ -28,7 +28,7 @@ Run the C file analyzer:
 ```
 usage: main.py [-h] [--nocolor] c_file
 ```
-### example
+### Example
 ```
 main.py c_file.c
 ```
