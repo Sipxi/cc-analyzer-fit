@@ -2,18 +2,38 @@ import subprocess
 import re
 import inspect
 import sys
+import argparse
+"""
 
+C Code Analyzer
+
+This script analyzes C source code files and provides information about the code
+
+Made by Serhij Cepil during the 1st semester of Computer Science at FIT VUT
+
+
+https://github.com/sipxi
+
+
+"""
+RED = "\033[31m"
+YELLOW = "\033[33m"
+RESET = "\033[0m"  # Reset to default color
 
 class CCodeAnalyzer:
     MAX_MAIN_LENGTH = 35
     MAX_FUNCTION_LENGTH = 50
     LONG_LINE_THRESHOLD = 100
     COMMENTS_OCCURANCE_THRESHOLD = 40
+
     
-    def __init__(self, c_file_path):
+    def __init__(self, c_file_path, use_color=True):
         self.c_file_path = c_file_path
+        self.file = None
+        self.use_color = use_color
         self.global_vars = self.__get_declarations("v")
         self.all_func_declaration = self.__get_declarations("f")
+        self.typedef_declaration = self.__get_declarations("t")
         self.long_lines = self.__get_long_lines()
         self.magic_constants = self.__get_magic_constants()
         self.short_vars = self.__get_short_vars()
@@ -22,7 +42,21 @@ class CCodeAnalyzer:
         self.func_args_count = self.__get_count_function_arguments()
         self.comment_occurance = self.__get_comments_occurance()
         self.pointer_operations = self.__get_pointer_operations()
-        
+    
+    
+    def __open_file(self):
+        if not self.file:
+            try:
+                self.file = open(self.c_file_path, 'r', encoding='utf-8')
+            except FileNotFoundError:
+                print(f"Error: File '{self.c_file_path}' not found.")
+                sys.exit(1)
+    
+    def __close_file(self):
+        if self.file:
+            self.file.close()
+            self.file = None
+    
     def __get_pointer_operations(self):
         """
         Scans a C source code file for pointer manipulation operations involving 
@@ -51,9 +85,9 @@ class CCodeAnalyzer:
         
         found_operations = []
         
-        with open(self.c_file_path, 'r') as f:
+        self.__open_file()
             # Read the file line by line
-            lines = f.readlines()
+        lines = self.file.readlines()
         
         # Iterate over each line and check for matches
         for line_number, line in enumerate(lines, start=1):
@@ -66,9 +100,9 @@ class CCodeAnalyzer:
                 # We capture the entire matched string, which includes the dereference and operator
                 full_match = dereference_part + line[line.find(dereference_part)+len(dereference_part):].strip()
                 found_operations.append((full_match, line_number))
+        self.__close_file()
         return found_operations
         
-    
     def __get_declarations(self, mode: str = "v") -> list:
         """
         Retrieves declarations of variables or functions from a C file using ctags.
@@ -77,6 +111,7 @@ class CCodeAnalyzer:
             mode (str, optional): The type of declarations to retrieve. Defaults to 'v' (variable).
                 - 'v': Retrieves variable declarations.
                 - 'f': Retrieves function declarations.
+                - 't': Retrieves typedef declarations.
 
         Returns:
             list: A list of tuples containing the name and line number of each declaration.
@@ -84,7 +119,7 @@ class CCodeAnalyzer:
         Raises:
             subprocess.CalledProcessError: If the ctags command fails.
         """
-        if mode not in ["v", "f"]:
+        if mode not in ["v", "f", "t"]:
             return None
 
         # Use ctags to extract declarations
@@ -120,8 +155,8 @@ class CCodeAnalyzer:
         initial_bracket = False
 
         # Open the C code file and read all lines
-        with open(self.c_file_path, 'r', encoding='utf-8') as file:
-            lines = file.readlines()
+        self.__open_file()
+        lines = self.file.readlines()
 
         # Iterate through the lines, starting from the given start line
         for i in range(start_line, len(lines)):
@@ -159,6 +194,7 @@ class CCodeAnalyzer:
 
             # Increment the function length for non-empty, non-comment lines
             func_length += 1
+        self.__close_file()
         return func_length
     
     def __get_functions_length(self) -> tuple[list, list]:
@@ -203,39 +239,40 @@ class CCodeAnalyzer:
 
         magic_constants = []
         
-        with open(self.c_file_path, 'r', encoding='utf-8') as file:
-            inside_block_comment = False  # Track whether inside a block comment
+        self.__open_file()
+        inside_block_comment = False  # Track whether inside a block comment
 
-            for line_number, line in enumerate(file, start=1):
-                stripped_line = line.strip()
+        for line_number, line in enumerate(self.file, start=1):
+            stripped_line = line.strip()
 
-                # Skip lines that are preprocessor directives (e.g., #define)
-                if stripped_line.startswith("#define"):
-                    continue
+            # Skip lines that are preprocessor directives (e.g., #define)
+            if stripped_line.startswith("#define"):
+                continue
 
-                # Handle block comment start and end
-                if "/*" in stripped_line:
-                    inside_block_comment = True
-                if "*/" in stripped_line:
-                    inside_block_comment = False
+            # Handle block comment start and end
+            if "/*" in stripped_line:
+                inside_block_comment = True
+            if "*/" in stripped_line:
+                inside_block_comment = False
 
-                # Skip line if inside a comment block or line comment
-                if inside_block_comment or "//" in stripped_line:
-                    continue
+            # Skip line if inside a comment block or line comment
+            if inside_block_comment or "//" in stripped_line:
+                continue
 
-                # Ignore numbers inside string literals or character literals
-                # First find all string and char literals and mark them
-                string_literals = re.findall(string_literal_pattern, line)
-                char_literals = re.findall(char_literal_pattern, line)
+            # Ignore numbers inside string literals or character literals
+            # First find all string and char literals and mark them
+            string_literals = re.findall(string_literal_pattern, line)
+            char_literals = re.findall(char_literal_pattern, line)
 
-                # Remove numbers in literals by replacing them with a placeholder
-                for literal in string_literals + char_literals:
-                    line = line.replace(literal[0], ' ' * len(literal[0]))  # Replace literal with spaces
+            # Remove numbers in literals by replacing them with a placeholder
+            for literal in string_literals + char_literals:
+                line = line.replace(literal[0], ' ' * len(literal[0]))  # Replace literal with spaces
 
-                # Find all matches of numbers in the current line, excluding those in literals
-                numeric_matches = numeric_pattern.findall(line)
-                for match in numeric_matches:
-                    magic_constants.append((match, line_number))
+            # Find all matches of numbers in the current line, excluding those in literals
+            numeric_matches = numeric_pattern.findall(line)
+            for match in numeric_matches:
+                magic_constants.append((match, line_number))
+        self.__close_file
         return magic_constants
         
     def __get_comments_occurance(self, threshold=COMMENTS_OCCURANCE_THRESHOLD) -> list:
@@ -248,8 +285,8 @@ class CCodeAnalyzer:
         Returns:
             list: A list of tuples containing the start line number and length of each segment.
         """
-        with open(self.c_file_path, 'r', encoding='utf-8') as file:
-            lines = file.readlines()
+        self.__open_file()
+        lines = self.file.readlines()
 
         lines_without_comments = 0
         start_line = None
@@ -278,6 +315,7 @@ class CCodeAnalyzer:
         # Add final segment if it meets the threshold
         if lines_without_comments >= threshold:
             segments.append((start_line + 1, lines_without_comments))
+        self.__close_file()
         return segments
     
     def __get_long_lines(self) -> list:
@@ -288,11 +326,12 @@ class CCodeAnalyzer:
             list: A list of tuples containing the line number and length of each long line.
         """
         long_lines = []
-        with open(self.c_file_path, 'r', encoding='utf-8') as file:
+        self.__open_file()
 
-            for line_number, line in enumerate(file, start=1):
-                if len(line) > self.LONG_LINE_THRESHOLD: 
-                    long_lines.append((line_number, len(line))) 
+        for line_number, line in enumerate(self.file, start=1):
+            if len(line) > self.LONG_LINE_THRESHOLD: 
+                long_lines.append((line_number, len(line))) 
+        self.__close_file()
         return long_lines
     
     def __get_short_vars(self) -> list:
@@ -303,8 +342,8 @@ class CCodeAnalyzer:
         Returns:
             list: A list of tuples containing the short variable name and its line number.
         """
-        with open(self.c_file_path, 'r', encoding='utf-8') as file:
-            lines = file.readlines()
+        self.__open_file()
+        lines = self.file.readlines()
         short_vars = []
 
         # Regular expression patterns to match:
@@ -349,6 +388,7 @@ class CCodeAnalyzer:
             if matches:
                 for var in matches:
                     short_vars.append((var, line_num))
+        self.__close_file()
         return short_vars 
 
     def __get_count_function_arguments(self) -> list:
@@ -360,8 +400,9 @@ class CCodeAnalyzer:
         """
         function_args_count = []
 
-        with open(self.c_file_path, 'r', encoding='utf-8') as file:
-            lines = file.readlines()  # Read all lines once
+        self.__open_file()
+        
+        lines = self.file.readlines()  # Read all lines once
 
         for func_name, line_number in self.all_func_declaration:
             # Ensure we are within the file's line range
@@ -387,7 +428,7 @@ class CCodeAnalyzer:
 
             # Count the arguments
             function_args_count.append((func_name, line_number, len(args)))
-
+        self.__close_file()
         return function_args_count
 
     def __get_explicit_casts(self) -> list:
@@ -406,8 +447,8 @@ class CCodeAnalyzer:
         explicit_casts = []
 
         # Open the C code file and read all lines
-        with open(self.c_file_path, 'r', encoding='utf-8') as file:
-            lines = file.readlines()
+        self.__open_file()
+        lines = self.file.readlines()
 
         # Iterate through each line to find matches
         for line_number, line in enumerate(lines, start=1):
@@ -573,9 +614,14 @@ class CCodeAnalyzer:
         for pointer_op, line in self.pointer_operations:
             self.print_error("WARNING", inspect.currentframe().f_code.co_name,
                             pointer_op, line)
-    
-    
+     
     def check_bad_functions_declarations(self) -> None:
+        """
+        Checks if any function declarations start with an uppercase letter and prints a warning message.
+
+        Returns:
+            None
+        """
         if not self.all_func_declaration:
             return
         additional_info = "Function starts with upper case..."
@@ -583,18 +629,37 @@ class CCodeAnalyzer:
             if func[0].isupper():
                 self.print_error("WARNING", inspect.currentframe().f_code.co_name, func, line, additional_info)
     
-    def print_error(self, mode, func_that_checked, var_print, line_print, additional_info = "") -> None:
-        """Fancy printing for error
-
-        Args:
-            mode (string): Mode in string
-            func_that_checked (string): what func checked it
-            var_print (string): variable to print
-            line_print (int): line in which error was found
-            additional_info (string, optional): Additional info. Defaults to "".
-        
+    def check_type_def_declarations(self) -> None:
         """
-        print(f"[{mode}] [{func_that_checked}] found: {var_print} at Line: {line_print}, {additional_info}")
+        Typedefs should start with an uppercase
+
+        Returns:
+            None
+        """
+        if not self.typedef_declaration:
+            return
+        additional_info = "Type definition should start with upper case..."
+        for type_def, line in self.typedef_declaration:
+            if not type_def[0].isupper():
+                self.print_error("WARNING", inspect.currentframe().f_code.co_name, type_def, line, additional_info)
+    
+    def print_error(self, mode, func_that_checked, var_print, line_print, additional_info="") -> None:
+            """Fancy printing for error
+
+            Args:
+                mode (string): Mode in string
+                func_that_checked (string): what func checked it
+                var_print (string): variable to print
+                line_print (int): line in which error was found
+                additional_info (string, optional): Additional info. Defaults to "".
+            
+            """
+            if mode == "ERROR":
+                color = RED if self.use_color else ""
+            else:
+                color = YELLOW if self.use_color else ""
+
+            print(f"{color}[{mode}] [{func_that_checked}] found: {var_print} at Line: {line_print} {additional_info} {RESET if self.use_color else ''}")
     
     def analyze(self) -> None:
         """
@@ -604,6 +669,7 @@ class CCodeAnalyzer:
             None
         """
         self.check_for_global_vars()
+        self.check_type_def_declarations()
         self.check_pointer_operations()
         self.check_bad_functions_declarations()
         self.check_magic_constants()
@@ -616,12 +682,23 @@ class CCodeAnalyzer:
         
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: python main.py <path_to_c_file>")
-        return
+    parser = argparse.ArgumentParser(
+        description="A C code analyzer to check for errors in a C file. Use --nocolor to disable color output in error messages."
+    )
+    parser.add_argument(
+        "c_file", 
+        help="Path to the C file to analyze."
+    )
+    parser.add_argument(
+        "--nocolor", 
+        action="store_true", 
+        help="Disable colored output for error messages."
+    )
+
+    args = parser.parse_args()
+
+    analyzer = CCodeAnalyzer(args.c_file, use_color=not args.nocolor)
     
-    c_file = sys.argv[1]
-    analyzer = CCodeAnalyzer(c_file)
     analyzer.analyze()
 
 if __name__ == "__main__":

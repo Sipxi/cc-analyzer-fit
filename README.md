@@ -26,5 +26,14 @@ sudo apt install universal-ctags
 ## Usage
 Run the C file analyzer:
 ```
-python main.py path/to/your/c_file.c
+usage: main.py [-h] [--nocolor] c_file
 ```
+### example
+```
+main.py c_file.c
+```
+
+```
+main.py c_file.c --nocolor
+```
+

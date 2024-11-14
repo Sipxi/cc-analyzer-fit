@@ -1,54 +1,56 @@
 import re
 
-def check_pointer_operations(file_path):
-    """
-    Scans a C source code file for pointer manipulation operations involving 
-    dereferencing with increment (++) or decrement (--) operators, such as:
-    `*i++`, `**i++`, `***i++`, `****i--`, etc.
-
-    Args:
-        file_path (str): The path to the C source code file that will be scanned.
+def check_struct_variable_naming(c_file_content):
+    # Regex pattern to find typedef struct declarations and their contents
+    struct_pattern = r'typedef\s+struct\s*\{([^}]+)\}\s*(\w+);'
     
-    Returns:
-        list of tuples: A list of tuples where each tuple contains:
-            - A matched pointer operation (str)
-            - The line number (int) where the operation was found.
+    # Regex patterns for camelCase (first letter uppercase) and snake_case (all lowercase with underscores)
+    camel_case_pattern = r'\b[A-Z][a-zA-Z0-9]*\b'
+    snake_case_pattern = r'\b[a-z_]+\b'
+
+    # Find all typedef struct blocks and their content
+    structs = re.findall(struct_pattern, c_file_content)
+
+    for struct_content, struct_name in structs:
+        print(f"Checking struct: {struct_name}")
         
-        If no pointer operations are found, returns an empty list.
-    """
-    
-    # Define the refined pattern for pointer operations involving dereferencing
-    pointer_patterns = [
-        r'(\*+)\s*\w+\+\+',  # Matches *i++, **i++, ***i++, etc.
-        r'(\*+)\s*\w+\-\-',   # Matches *i--, **i--, ***i--, etc.
-    ]
+        # Find all variables inside the struct (i.e., names before the array sizes or semicolons)
+        struct_vars = re.findall(r'\s*(\w+)\s*\[', struct_content)  # Match variable names before '['
 
-    # Combine the patterns into one regex
-    pattern = '|'.join(pointer_patterns)
-    
-    found_operations = []
-    
-    with open(file_path, 'r') as f:
-        # Read the file line by line
-        lines = f.readlines()
-    
-    # Iterate over each line and check for matches
-    for line_number, line in enumerate(lines, start=1):
-        matches = re.findall(pattern, line)
-        
-        # If matches are found, add them to the list
-        for match in matches:
-            # Since match is a tuple, we need to reconstruct the entire operation
-            dereference_part = match[0]  # This is the *+ part (e.g., *, **, ***)
-            # We capture the entire matched string, which includes the dereference and operator
-            full_match = dereference_part + line[line.find(dereference_part)+len(dereference_part):].strip()
-            found_operations.append((full_match, line_number))
-    
-    return found_operations
+        for var in struct_vars:
+            if re.match(camel_case_pattern, var):
+                print(f'  {var} follows CamelCase style (uppercase first letter).')
+            elif re.match(snake_case_pattern, var):
+                print(f'  {var} follows snake_case style (all lowercase with underscores).')
+            else:
+                print(f'  {var} does not follow the standard naming conventions.')
 
+# Example usage with the C code
+c_code = """
+typedef struct{
+    char name[MAX_CONTACT_INFO_LENGTH];
+    char number[MAX_CONTACT_INFO_LENGTH];
+} contact;
 
+typedef struct{
+    char name[MAX_CONTACT_INFO_LENGTH];
+    char number[MAX_CONTACT_INFO_LENGTH];
+} Contact;
 
+typedef struct{
+    char name[MAX_CONTACT_INFO_LENGTH];
+    char number[MAX_CONTACT_INFO_LENGTH];
+} contact_t;
 
+typedef struct{
+    char name[MAX_CONTACT_INFO_LENGTH];
+    char number[MAX_CONTACT_INFO_LENGTH];
+} contact_thelp;
 
-a = check_pointer_operations("felix.c")
-print(a)
+typedef struct{
+    int id;
+    char description[100];
+} product;
+"""
+
+check_struct_variable_naming(c_code)
