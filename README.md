@@ -24,14 +24,15 @@ choco install universal-ctags
 sudo apt install universal-ctags
 ```
 ## Usage
-Run the C file analyzer:
 ```
 usage: main.py [-h] [--nocolor] c_file
 ```
 ### Example
+Run the C file analyzer:
 ```
 main.py c_file.c
 ```
+Run the C file analyzer without color:
 
 ```
 main.py c_file.c --nocolor
