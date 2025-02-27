@@ -5,7 +5,7 @@ I was bored and pissed off that automatic tests will grade our syntax and so on,
 
 ## Features
 - 🔍 **Syntax checking**: Checks if your code doesn't have anything bad(FIT VUT opinion)
-- That's it
+- 🎨 **Color and no color mode**: Run with fancy colors or not(My classmate had problems with colors in terminal, so i decided to make no color flag)
 
 ## Setup
 
