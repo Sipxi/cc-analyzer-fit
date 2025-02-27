@@ -1,4 +1,4 @@
-# cc-analyzer-fit
+# FIT VUT Regex Analyzer
 
 ## For Windows:
 
