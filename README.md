@@ -1,4 +1,4 @@
-# FIT VUT Regex Analyzer
+# FIT VUT Regex C Code Analyzer 
 
 ## About
 I was bored and pissed off that automatic tests will grade our syntax and so on, so I decided to replicate their (university's) syntax checker using **regex** and **Python**. (Don't ask me why regex, it just felt right.)
