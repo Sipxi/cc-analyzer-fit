@@ -1,5 +1,14 @@
 # FIT VUT Regex Analyzer
 
+## About
+I was bored and pissed off that automatic tests will grade our syntax and so on, so I decided to replicate their (university's) syntax checker using **regex** and **Python**. (Don't ask me why regex, it just felt right.)
+
+## Features
+- 🔍 **Syntax checking**: Checks if your code doesn't have anything bad(FIT VUT opinion)
+- That's it
+
+## Setup
+
 ## For Windows:
 
 ### Install Chocolatey (if not already installed):
